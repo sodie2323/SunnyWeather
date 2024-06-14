@@ -45,4 +45,20 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    // RecyclerView
+    implementation("androidx.recyclerview:recyclerview:1.0.0")
+    // Lifecycle extensions
+    implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
+    // LiveData KTX
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
+    // Material Design
+    implementation("com.google.android.material:material:1.1.0")
+    // SwipeRefreshLayout
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.6.1")
+    implementation("com.squareup.retrofit2:converter-gson:2.6.1")
+    // Kotlin Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1")
 }
