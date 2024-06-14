@@ -1,5 +1,6 @@
 package com.example.sunnyweather.logic.network
 
+import com.sunnyweather.android.logic.network.WeatherService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -14,6 +15,11 @@ import kotlin.coroutines.suspendCoroutine
 object SunnyWeatherNetwork {
     // 创建PlaceService实例
     private val placeService = ServiceCreator.create<PlaceService>()
+    private val weatherService = ServiceCreator.create(WeatherService::class.java)
+    suspend fun getDailyWeather(adcode: String) =
+        weatherService.getDailyWeather(adcode).await()
+    suspend fun getRealtimeWeather(adcode: String) =
+        weatherService.getRealtimeWeather(adcode).await()
 
     // 异步搜索地点
     suspend fun searchPlaces(query: String) = placeService.searchPlaces(query).await()

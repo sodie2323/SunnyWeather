@@ -25,6 +25,6 @@ interface PlaceService {
     //     &page=1
     //     &key=e7159ca7516735ee25491cbad21e0e34
     //     &extensions=base
-    @GET("v3/place/text?key=${SunnyWeatherApplication.KEY}&offset=20&page=1&extensions=base")
+    @GET("v3/place/text?key=${SunnyWeatherApplication.KEY}&offset=20&page=1&extensions=all")
     fun searchPlaces(@Query("keywords") query: String): Call<PlaceResponse>
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--    一开始的时候我们是将ScrollView隐藏起来的，不然空数据的界面看上去会很奇怪。等-->
+<!--    到天气数据请求成功之后，会通过代码的方式再将ScrollView显示出来。-->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/weatherLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="none"
+    android:overScrollMode="never"
+    android:visibility="invisible">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <include layout="@layout/now" />
+        <include layout="@layout/forecast" />
+        <include layout="@layout/life_index" />
+    </LinearLayout>
+</ScrollView>

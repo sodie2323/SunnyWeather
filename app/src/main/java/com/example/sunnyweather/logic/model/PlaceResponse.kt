@@ -9,7 +9,7 @@ data class PlaceResponse(val status: String,
 // 定义一个数据类，用于表示单个地点信息，包括名称、位置和格式化地址
 data class Place(
     val name: String, val pname: String, val cityname: String,
-    val address: String, val aname: String, val location: String){
+    val address: String, val aname: String, val location: String,val adcode: String){
     val addressInfo: String
         get() = "$pname $cityname $address"
     val locationInfo: Location
