@@ -16,6 +16,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.sunnyweather.R
 import com.example.sunnyweather.logic.model.getSky
+import com.sunnyweather.android.logic.model.DailyResponse
 import com.sunnyweather.android.logic.model.Weather
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -41,6 +42,7 @@ class WeatherActivity : AppCompatActivity() {
     val weatherLayout by lazy { findViewById<ScrollView>(R.id.weatherLayout) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        println("WeatherActivity onCreate,天气页面创建")
         super.onCreate(savedInstanceState)
         val decorView = window.decorView
         decorView.systemUiVisibility =
@@ -48,25 +50,23 @@ class WeatherActivity : AppCompatActivity() {
         window.statusBarColor = Color.TRANSPARENT
         setContentView(R.layout.activity_weather)
         setContentView(R.layout.activity_weather)
-        if (viewModel.locationLng.isEmpty()) {
-            viewModel.locationLng = intent.getStringExtra("location_lng") ?: ""
-        }
-        if (viewModel.locationLat.isEmpty()) {
-            viewModel.locationLat = intent.getStringExtra("location_lat") ?: ""
-        }
-        if (viewModel.placeName.isEmpty()) {
-            viewModel.placeName = intent.getStringExtra("place_name") ?: ""
+        if (viewModel.adcode.isEmpty()) {
+            println("WeatherActivity onCreate,adcode为空，进行赋值")
+            viewModel.adcode = intent.getStringExtra("adcode") ?: ""
+            println("WeatherActivity onCreate,adcode赋值成功，值为${viewModel.adcode}")
         }
         viewModel.weatherLiveData.observe(this, Observer { result ->
+            println("WeatherActivity onCreate,weatherLiveData被观察到发生变化，result=${result}")
             val weather = result.getOrNull()
             if (weather != null) {
+                println("WeatherActivity onCreate,weatherLiveData被观察到，weather不为空，进行解析与展示")
                 showWeatherInfo(weather)
             } else {
                 Toast.makeText(this, "无法成功获取天气信息", Toast.LENGTH_SHORT).show()
                 result.exceptionOrNull()?.printStackTrace()
             }
         })
-        viewModel.refreshWeather(viewModel.locationLng, viewModel.locationLat)
+        viewModel.refreshWeather(viewModel.adcode)
     }
 //    于showWeatherInfo()方法中的逻辑就比较简单了，其实就是从Weather对象中获取数
 //    据，然后显示到相应的控件上。
@@ -74,7 +74,9 @@ class WeatherActivity : AppCompatActivity() {
         placeName.text = viewModel.placeName
         val realtime = weather.realtime
         val daily = weather.daily
+        println("天气信息:\n realtime=${realtime}\n,daily=${daily}")
         // 填充now.xml布局中的数据
+        println("showWeatherInfo 开始填充now.xml布局中的数据")
         val currentTempText = "${realtime.lives.get(0).temperature_float.toInt()} ℃"
         currentTemp.text = currentTempText
         currentSky.text = getSky(realtime.lives.get(0).weather).info
@@ -82,31 +84,53 @@ class WeatherActivity : AppCompatActivity() {
         currentAQI.text = currentPM25Text
         nowLayout.setBackgroundResource(getSky(realtime.lives.get(0).weather).bg)
         // 填充forecast.xml布局中的数据
+        println("showWeatherInfo 开始填充forecast.xml布局中的数据")
         forecastLayout.removeAllViews()
         val days = daily.forecasts[0].casts.size
         val casts = daily.forecasts[0].casts
+        println("showWeatherInfo 开始填充${days}天的预报数据")
         for (i in 0 until days) {
-            val skycon = casts[i].dayWeather
+            println("showWeatherInfo 开始填充第${i+1}天的预报数据")
+            println("skycon")
+            val skycon = casts[i].dayweather
+            println("temperature")
             val daytemp = casts[i].daytemp
             val nighttemp = casts[i].nighttemp
+            println("showWeatherInfo 开始创建forecast_item.xml布局")
             val view = LayoutInflater.from(this).inflate(
                 R.layout.forecast_item,
                 forecastLayout, false)
+            println("获取组件：dateInfo,skyIcon,skyInfo,temperatureInfo")
             val dateInfo: TextView = view.findViewById(R.id.dateInfo)
             val skyIcon: ImageView = view.findViewById(R.id.skyIcon)
             val skyInfo: TextView = view.findViewById(R.id.skyInfo)
             val temperatureInfo: TextView = view.findViewById(R.id.temperatureInfo)
+            println("设置日期")
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             dateInfo.text = simpleDateFormat.format(casts[i].date)
+            println("设置天气,skycon: $skycon")
             val sky = getSky(skycon)
+            println("设置图标")
             skyIcon.setImageResource(sky.icon)
+            println("设置文字")
             skyInfo.text = sky.info
+            println("设置温度")
             val tempText = "${nighttemp.toInt()} ~ ${daytemp.toInt()} ℃"
             temperatureInfo.text = tempText
+            println("showWeatherInfo 开始添加预报数据到forecastLayout")
             forecastLayout.addView(view)
         }
         // 填充life_index.xml布局中的数据
-        val lifeIndex = daily.lifeIndex
+        println("showWeatherInfo 开始填充life_index.xml布局中的数据")
+        var lifeIndex = daily.lifeIndex
+        if (lifeIndex == null) {
+            val coldRiskText = DailyResponse.LifeDescription("暂无感冒指数数据")
+            val dressingText = DailyResponse.LifeDescription("暂无穿衣指数数据")
+            val ultravioletText = DailyResponse.LifeDescription("暂无紫外线指数数据")
+            val carWashingText = DailyResponse.LifeDescription("暂无洗车指数数据")
+            lifeIndex = DailyResponse.LifeIndex(listOf(coldRiskText), listOf(dressingText), listOf(ultravioletText), listOf(carWashingText) )
+
+        }
         coldRiskText.text = lifeIndex.coldRisk[0].desc
         dressingText.text = lifeIndex.dressing[0].desc
         ultravioletText.text = lifeIndex.ultraviolet[0].desc

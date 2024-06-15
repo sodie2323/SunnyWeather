@@ -27,11 +27,11 @@ class PlaceAdapter(private val fragment: Fragment, private val placeList: List<P
             parent, false)
         val holder = ViewHolder(view)
         holder.itemView.setOnClickListener {
+            println("点击了 ${holder.placeName.text}")
             val position = holder.adapterPosition
             val place = placeList[position]
             val intent = Intent(parent.context, WeatherActivity::class.java).apply {
-                putExtra("location_lng", place.locationInfo.lng)
-                putExtra("location_lat", place.locationInfo.lat)
+                putExtra("adcode", place.adcode)
                 putExtra("place_name", place.name)
             }
             fragment.startActivity(intent)

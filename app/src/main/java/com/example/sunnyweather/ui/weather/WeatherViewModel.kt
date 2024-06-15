@@ -11,14 +11,14 @@ import com.example.sunnyweather.logic.model.Location
 候不会丢失
  */
 class WeatherViewModel : ViewModel() {
-    private val locationLiveData = MutableLiveData<Location>()
-    var locationLng = ""
-    var locationLat = ""
+    private val adcodeLiveData = MutableLiveData<String>()
+    var adcode = ""
     var placeName = ""
-    val weatherLiveData = locationLiveData.switchMap{ location ->
-        Repository.refreshWeather(location.lng, location.lat)
+    val weatherLiveData = adcodeLiveData.switchMap{ adcode ->
+        println("WeatherViewModel 检测到adcodeLiveData变化，开始刷新天气，执行Repository.refreshWeather()")
+        Repository.refreshWeather(adcode)
     }
-    fun refreshWeather(lng: String, lat: String) {
-        locationLiveData.value = Location(lng, lat)
+    fun refreshWeather(adcode: String) {
+        adcodeLiveData.value = adcode
     }
 }
