@@ -30,13 +30,22 @@ class PlaceAdapter(private val fragment: PlaceFragment, private val placeList: L
             println("点击了 ${holder.placeName.text}")
             val position = holder.adapterPosition
             val place = placeList[position]
-            val intent = Intent(parent.context, WeatherActivity::class.java).apply {
-                putExtra("adcode", place.adcode)
-                putExtra("place_name", place.name)
+            val activity = fragment.activity
+            if (activity is WeatherActivity) {
+                val drawerLayout = activity.findViewById<androidx.drawerlayout.widget.DrawerLayout>(R.id.drawerLayout)
+                drawerLayout.closeDrawers()
+                activity.viewModel.adcode = place.adcode
+                activity.viewModel.placeName = place.name
+                activity.refreshWeather()
+            }else{
+                val intent = Intent(parent.context, WeatherActivity::class.java).apply {
+                    putExtra("adcode", place.adcode)
+                    putExtra("place_name", place.name)
+                }
+                fragment.startActivity(intent)
+                fragment.activity?.finish()
             }
             fragment.viewModel.savePlace(place)
-            fragment.startActivity(intent)
-            fragment.activity?.finish()
         }
         return holder
     }

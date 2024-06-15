@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
+import com.example.sunnyweather.MainActivity
 import com.example.sunnyweather.R
 import com.example.sunnyweather.logic.Repository
 import com.example.sunnyweather.logic.model.Place
@@ -49,7 +50,7 @@ class PlaceFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 //        在PlaceFragment中进行了判断，如果当前已有存储的城市数据，那么就获取已存储的数据
 //        并解析成Place对象，然后使用它的地址码和城市名直接跳转并传递给WeatherActivity
-        if (viewModel.isPlaceSaved()) {
+        if (activity is MainActivity && viewModel.isPlaceSaved()) {
             val place = viewModel.getSavedPlace()
             val intent = Intent(context, WeatherActivity::class.java).apply {
                 putExtra("adcode", place.adcode)

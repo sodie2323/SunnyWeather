@@ -1,20 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--    一开始的时候我们是将ScrollView隐藏起来的，不然空数据的界面看上去会很奇怪。等-->
-<!--    到天气数据请求成功之后，会通过代码的方式再将ScrollView显示出来。-->
-<ScrollView
+
+
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/weatherLayout"
+    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:scrollbars="none"
-    android:overScrollMode="never"
-    android:visibility="invisible">
-    <LinearLayout
-        android:orientation="vertical"
+    android:layout_height="match_parent">
+    <!--    这里在ScrollView的外面嵌套了一层SwipeRefreshLayout，这样ScrollView就自动-->
+    <!--    拥有下拉刷新功能了。-->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <include layout="@layout/now" />
-        <include layout="@layout/forecast" />
-        <include layout="@layout/life_index" />
-    </LinearLayout>
-</ScrollView>
+        android:layout_height="match_parent">
+
+        <!--    一开始的时候我们是将ScrollView隐藏起来的，不然空数据的界面看上去会很奇怪。等-->
+        <!--    到天气数据请求成功之后，会通过代码的方式再将ScrollView显示出来。-->
+        <ScrollView
+            android:id="@+id/weatherLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none"
+            android:overScrollMode="never"
+            android:visibility="invisible">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <include layout="@layout/now" />
+                <include layout="@layout/forecast" />
+                <include layout="@layout/life_index" />
+            </LinearLayout>
+        </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@color/colorPrimary">
+        <fragment
+            android:id="@+id/placeFragment"
+            android:name="com.example.sunnyweather.ui.place.PlaceFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="25dp"/>
+    </FrameLayout>
+</androidx.drawerlayout.widget.DrawerLayout>
+
+
