@@ -12,7 +12,7 @@ import com.example.sunnyweather.logic.model.Place
 import com.example.sunnyweather.ui.weather.WeatherActivity
 
 // 定义一个适配器类，用于将Place数据列表适配到RecyclerView中
-class PlaceAdapter(private val fragment: Fragment, private val placeList: List<Place>) :
+class PlaceAdapter(private val fragment: PlaceFragment, private val placeList: List<Place>) :
     RecyclerView.Adapter<PlaceAdapter.ViewHolder>() {
 
     // 内部类ViewHolder，用于保存RecyclerView中每个项的视图组件
@@ -34,6 +34,7 @@ class PlaceAdapter(private val fragment: Fragment, private val placeList: List<P
                 putExtra("adcode", place.adcode)
                 putExtra("place_name", place.name)
             }
+            fragment.viewModel.savePlace(place)
             fragment.startActivity(intent)
             fragment.activity?.finish()
         }

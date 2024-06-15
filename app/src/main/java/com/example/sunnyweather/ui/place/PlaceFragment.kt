@@ -1,6 +1,7 @@
 package com.example.sunnyweather.ui.place
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,10 +17,13 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import com.example.sunnyweather.R
+import com.example.sunnyweather.logic.Repository
+import com.example.sunnyweather.logic.model.Place
 import com.example.sunnyweather.logic.model.PlaceResponse
 import com.example.sunnyweather.logic.network.PlaceService
 import com.example.sunnyweather.logic.network.ServiceCreator
 import com.example.sunnyweather.logic.network.SunnyWeatherNetwork
+import com.example.sunnyweather.ui.weather.WeatherActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -43,6 +47,18 @@ class PlaceFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+//        在PlaceFragment中进行了判断，如果当前已有存储的城市数据，那么就获取已存储的数据
+//        并解析成Place对象，然后使用它的地址码和城市名直接跳转并传递给WeatherActivity
+        if (viewModel.isPlaceSaved()) {
+            val place = viewModel.getSavedPlace()
+            val intent = Intent(context, WeatherActivity::class.java).apply {
+                putExtra("adcode", place.adcode)
+                putExtra("place_name", place.name)
+            }
+            startActivity(intent)
+            activity?.finish()
+            return
+        }
         val layoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = layoutManager
         adapter = PlaceAdapter(this, viewModel.placeList)
@@ -95,5 +111,6 @@ class PlaceFragment : Fragment() {
             }
         })
     }
+
 }
 
