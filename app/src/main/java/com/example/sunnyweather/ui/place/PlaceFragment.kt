@@ -35,7 +35,7 @@ class PlaceFragment : Fragment() {
     private val recyclerView by lazy { requireView().findViewById<RecyclerView>(R.id.recyclerView) }
     private val searchPlaceEdit by lazy { requireView().findViewById<EditText>(R.id.searchPlaceEdit) }
     private val bgImageView by lazy { requireView().findViewById<ImageView>(R.id.bgImageView) }
-    private val placeTestButton by lazy { requireView().findViewById<Button>(R.id.placeTestButton) }
+//    private val placeTestButton by lazy { requireView().findViewById<Button>(R.id.placeTestButton) }
     private lateinit var adapter: PlaceAdapter
 
     // 创建并返回fragment的视图
@@ -76,24 +76,24 @@ class PlaceFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
         }
-        placeTestButton.setOnClickListener {
-            val content = "北京"
-            val call = SunnyWeatherNetwork.testSearchPlaces(content);
-            println("测试网络请求：${call.request()}")
-            call.enqueue(object : Callback<PlaceResponse> {
-                override fun onResponse(call: Call<PlaceResponse>, response: Response<PlaceResponse>) {
-                    if (response.isSuccessful) {
-                        val placeResponse = response.body()
-                        // 处理 placeResponse
-                        println("测试Response：$placeResponse")
-                    }
-                }
-
-                override fun onFailure(call: Call<PlaceResponse>, t: Throwable) {
-                    // 处理错误
-                }
-            })
-        }
+//        placeTestButton.setOnClickListener {
+//            val content = "北京"
+//            val call = SunnyWeatherNetwork.testSearchPlaces(content);
+//            println("测试网络请求：${call.request()}")
+//            call.enqueue(object : Callback<PlaceResponse> {
+//                override fun onResponse(call: Call<PlaceResponse>, response: Response<PlaceResponse>) {
+//                    if (response.isSuccessful) {
+//                        val placeResponse = response.body()
+//                        // 处理 placeResponse
+//                        println("测试Response：$placeResponse")
+//                    }
+//                }
+//
+//                override fun onFailure(call: Call<PlaceResponse>, t: Throwable) {
+//                    // 处理错误
+//                }
+//            })
+//        }
         // 观察ViewModel中的地点数据变化
         viewModel.placeLiveData.observe(viewLifecycleOwner, Observer { result ->
             val places = result.getOrNull()

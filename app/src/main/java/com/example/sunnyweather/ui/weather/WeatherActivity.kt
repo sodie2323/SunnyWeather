@@ -1,29 +1,43 @@
 package com.example.sunnyweather.ui.weather
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Matrix
+import android.media.ExifInterface
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.service.autofill.Validators.or
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.CompoundButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.ScrollView
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.example.sunnyweather.MyService
 import com.example.sunnyweather.R
 import com.example.sunnyweather.logic.Repository.refreshWeather
 import com.example.sunnyweather.logic.model.getSky
 import com.sunnyweather.android.logic.model.DailyResponse
 import com.sunnyweather.android.logic.model.Weather
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.Random
@@ -46,6 +60,11 @@ class WeatherActivity : AppCompatActivity() {
     val ultravioletText by lazy { findViewById<TextView>(R.id.ultravioletText) }
     val carWashingText by lazy { findViewById<TextView>(R.id.carWashingText) }
     val weatherLayout by lazy { findViewById<ScrollView>(R.id.weatherLayout) }
+    val cameraBtn by lazy { findViewById<Button>(R.id.cameraBtn) }
+    val takePhoto = 1
+    lateinit var imageUri: Uri
+    lateinit var outputImage: File
+    val serviceSwitch by lazy { findViewById<Switch>(R.id.serviceSwitch) }
     val swipeRefresh by lazy { findViewById<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.swipeRefresh) }
     override fun onCreate(savedInstanceState: Bundle?) {
         println("WeatherActivity onCreate,天气页面创建")
@@ -80,6 +99,24 @@ class WeatherActivity : AppCompatActivity() {
         swipeRefresh.setOnRefreshListener {
             refreshWeather()
         }
+        cameraBtn.setOnClickListener {
+            // 创建File对象，用于存储拍照后的图片
+            println("WeatherActivity onCreate,cameraBtn被点击，创建File对象")
+            outputImage = File(externalCacheDir, "output_image.jpg")
+            if (outputImage.exists()) {
+                outputImage.delete()
+            }
+            outputImage.createNewFile()
+            imageUri =
+                FileProvider.getUriForFile(this, "com.example.cameraalbumtest."+
+                        "fileprovider", outputImage)
+            // 启动相机程序
+            println("WeatherActivity onCreate,cameraBtn被点击，启动相机程序")
+            val intent = Intent("android.media.action.IMAGE_CAPTURE")
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+            startActivityForResult(intent, takePhoto)
+        }
+
         val navBtn = findViewById<Button>(R.id.navBtn)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
         navBtn.setOnClickListener {
@@ -97,11 +134,56 @@ class WeatherActivity : AppCompatActivity() {
             }
         })
 
+        serviceSwitch.setOnCheckedChangeListener( CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+                val intent = Intent(this, MyService::class.java)
+                startService(intent)
+            } else {
+                val intent = Intent(this, MyService::class.java)
+                stopService(intent)
+            }
+        }
+        );
     }
+    val imageView by lazy { findViewById<ImageView>(R.id.imageView) }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            takePhoto -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    // 将拍摄的照片显示出来
+                    val bitmap = BitmapFactory.decodeStream(contentResolver.
+                    openInputStream(imageUri))
+                    imageView.setImageBitmap(rotateIfRequired(bitmap))
+                }
+            }
+        }
+    }
+    private fun rotateIfRequired(bitmap: Bitmap): Bitmap {
+        val exif = ExifInterface(outputImage.path)
+        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL)
+        return when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90)
+            ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180)
+            ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270)
+            else -> bitmap
+        }
+    }
+    private fun rotateBitmap(bitmap: Bitmap, degree: Int): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(degree.toFloat())
+        val rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height,
+            matrix, true)
+        bitmap.recycle() // 将不再需要的Bitmap对象回收
+        return rotatedBitmap
+    }
+
     fun refreshWeather() {
         viewModel.refreshWeather(adcode = viewModel.adcode)
         swipeRefresh.isRefreshing = true
     }
+
 
     //    于showWeatherInfo()方法中的逻辑就比较简单了，其实就是从Weather对象中获取数
 //    据，然后显示到相应的控件上。
@@ -172,4 +254,6 @@ class WeatherActivity : AppCompatActivity() {
         carWashingText.text = lifeIndex.carWashing[0].desc
         weatherLayout.visibility = View.VISIBLE
     }
+
+
 }
